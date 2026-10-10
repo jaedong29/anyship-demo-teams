@@ -1,4 +1,5 @@
 .git
+deploy-spec.yaml
 .venv
 venv
 __pycache__
