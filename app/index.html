@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Split · 가볍게 팀 나누기</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #17212b; background: #f3f4ef; font-family: system-ui, sans-serif; }
+  header { max-width: 1050px; padding: 28px 24px; margin: auto; display: flex; align-items: center; justify-content: space-between; }
+  .brand { font-size: 18px; font-weight: 800; letter-spacing: -.7px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #9ec66a; margin-right: 9px; }
+  .tag { font-size: 12px; color: #57714b; padding: 7px 12px; background: #e5eddc; border-radius: 30px; }
+  main { max-width: 1050px; margin: 15px auto 50px; padding: 0 24px; }
+  .intro { margin-bottom: 30px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.8px; color: #688453; }
+  h1 { font-size: clamp(30px, 5vw, 45px); letter-spacing: -2px; margin: 12px 0; }
+  .intro p { color: #677268; line-height: 1.7; margin: 0; }
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 22px; align-items: start; }
+  .panel { padding: 25px; border: 1px solid #e0e4d9; border-radius: 20px; background: #fff; }
+  h2 { font-size: 18px; margin: 0 0 8px; letter-spacing: -.6px; }
+  .muted { color: #7a837c; font-size: 13px; line-height: 1.6; }
+  label { display: block; font-size: 13px; font-weight: 650; margin: 20px 0 8px; }
+  textarea, select { width: 100%; padding: 12px; border: 1px solid #d8dfd3; border-radius: 10px; background: #fcfdfb; font: inherit; color: inherit; }
+  textarea { min-height: 230px; line-height: 1.7; resize: vertical; }
+  .hint { font-size: 12px; color: #7a837c; margin: 7px 0 0; }
+  button { border: 0; border-radius: 10px; font: inherit; cursor: pointer; font-size: 14px; font-weight: 600; }
+  button:disabled { opacity: .55; cursor: wait; }
+  .primary { width: 100%; background: #314b31; color: #fff; padding: 14px; margin-top: 22px; }
+  .secondary { padding: 9px 14px; color: #40513b; background: #edf2e8; }
+  .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 23px; }
+  .team { border: 1px solid #e1e7db; border-radius: 13px; background: #fbfcf8; padding: 18px; }
+  .team h3 { margin: 0 0 12px; color: #405d38; font-size: 15px; }
+  .team p { margin: 9px 0 0; font-size: 14px; overflow-wrap: anywhere; }
+  #empty { padding: 70px 15px; text-align: center; color: #84907e; line-height: 1.9; }
+  #status { color: #516848; font-size: 13px; min-height: 22px; margin: 14px 0 0; line-height: 1.6; }
+  #status.error { color: #a34030; }
+  footer { margin: 23px 0; color: #7d8778; font-size: 12px; line-height: 1.7; }
+  @media (max-width: 730px) { .layout { grid-template-columns: 1fr; } textarea { min-height: 150px; } #empty { padding: 40px 10px; } }
+</style>
+<header><span class="brand"><span class="dot"></span>Team Split</span><span class="tag">행사 · 스터디 · 워크숍</span></header>
+<main>
+  <section class="intro"><span class="eyebrow">LESS ORGANIZING, MORE TOGETHER</span><h1>팀 나누기, 가볍게.</h1><p>명단을 입력하고 팀 수를 골라 주세요.<br>인원이 비슷하도록 나누고, 마음에 들 때까지 다시 섞을 수 있어요.</p></section>
+  <div class="layout">
+    <form class="panel" id="form">
+      <h2>누가 함께하나요?</h2><p class="muted">참가자는 한 줄에 한 명씩 입력해 주세요.</p>
+      <label for="participants">참가자 명단</label>
+      <textarea id="participants" maxlength="2000" required>참가자 1
+참가자 2
+참가자 3
+참가자 4
+참가자 5
+참가자 6
+참가자 7
+참가자 8
+참가자 9
+참가자 10
+참가자 11
+참가자 12</textarea>
+      <p class="hint">최대 60명 · 이름은 30자 이내</p>
+      <label for="team-count">나눌 팀 수</label><select id="team-count"><option value="2">2팀</option><option value="3" selected>3팀</option><option value="4">4팀</option><option value="6">6팀</option></select>
+      <button class="primary" id="create" type="submit">팀 만들기 →</button>
+    </form>
+    <section class="panel" aria-label="팀 배정 결과">
+      <div class="result-heading"><div><h2>오늘의 팀</h2><span class="muted" id="summary">아직 배정하지 않았어요.</span></div><button class="secondary" id="shuffle" type="button" hidden>다시 섞기</button></div>
+      <div id="empty">같이할 사람들을 모았나요?<br>왼쪽에서 팀을 만들어 보세요.</div>
+      <div id="groups"></div><p id="status" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+  <footer>입력한 명단과 결과는 서버에 저장하지 않습니다. 새로고침하면 기본 명단으로 돌아갑니다.</footer>
+</main>
+<script>
+  let seed = 1;
+  const status = document.querySelector('#status');
+  async function createTeams() {
+    const buttons = [document.querySelector('#create'), document.querySelector('#shuffle')];
+    buttons.forEach(button => button.disabled = true);
+    status.className = '';
+    status.textContent = '팀을 나누고 있어요…';
+    try {
+      const participants = document.querySelector('#participants').value.split(/\r?\n/).map(name => name.trim()).filter(Boolean);
+      const response = await fetch('/api/teams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ participants, team_count: Number(document.querySelector('#team-count').value), seed }) });
+      const data = await response.json();
+      if (!response.ok) {
+        const detail = typeof data.detail === 'string' ? data.detail : data.detail?.[0]?.msg;
+        throw new Error(detail || '명단과 팀 수를 확인해 주세요.');
+      }
+      const groups = document.querySelector('#groups');
+      groups.replaceChildren();
+      for (const team of data.groups) {
+        const card = document.createElement('article'); card.className = 'team';
+        const title = document.createElement('h3'); title.textContent = `${team.name} · ${team.members.length}명`; card.append(title);
+        for (const member of team.members) { const name = document.createElement('p'); name.textContent = member; card.append(name); }
+        groups.append(card);
+      }
+      document.querySelector('#empty').hidden = true;
+      document.querySelector('#shuffle').hidden = false;
+      document.querySelector('#summary').textContent = `${data.participant_count}명 · ${data.groups.length}팀`;
+      status.textContent = '배정 완료! 다시 섞기로 다른 조합도 확인해 보세요.';
+    } catch (error) { status.className = 'error'; status.textContent = error.message; }
+    finally { buttons.forEach(button => button.disabled = false); }
+  }
+  document.querySelector('#form').onsubmit = event => { event.preventDefault(); seed = 1; createTeams(); };
+  document.querySelector('#shuffle').onclick = () => { seed += 1; createTeams(); };
+</script>
+</html>
