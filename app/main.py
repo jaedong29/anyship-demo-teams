@@ -1,3 +1,4 @@
+import os
 import random
 from pathlib import Path
 
@@ -52,4 +53,4 @@ def split_teams(request: TeamRequest) -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=int(os.environ.get("PORT", "8080")))

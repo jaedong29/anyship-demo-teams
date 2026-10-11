@@ -1,6 +1,7 @@
-app: anyship-demo-teams
+app: app-4083fc2286cf400fb9af
 source:
   repo: https://github.com/jaedong29/anyship-demo-teams
+  commit: 5091d29441683b3a48744d06f0c825c20bf4f5c8
 build:
   dockerfile: Dockerfile
   runtime_hint: python3.12
